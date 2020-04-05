@@ -39,3 +39,9 @@ variable "http_port" {
     
 }
 
+output "public_ip" {
+  value = aws_instance.example.public_ip
+  description = "The public ip of the instance where the webserver is running"
+}
+
+
