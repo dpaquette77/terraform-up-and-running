@@ -13,7 +13,7 @@ resource "aws_instance" "example" {
     user_data = <<EOF
 #!/bin/bash
 echo "hello world" > index.html
-nohup busybox httpd -f -p 8080 &
+nohup busybox httpd -f -p ${var.http_port} &
 EOF
 
     tags = {
@@ -24,10 +24,18 @@ EOF
 resource "aws_security_group" "instance" {
     name = "terraform-example-instanance"
     ingress {
-        from_port = 8080
-        to_port = 8080
+        from_port = var.http_port
+        to_port = var.http_port
         protocol = "tcp"
         cidr_blocks = ["0.0.0.0/0"]
     }
   
 }
+
+variable "http_port" {
+    description = "port on which the HTTP server listens on"
+    type = number
+    default = 8080
+    
+}
+
