@@ -126,6 +126,7 @@ resource "aws_lb_target_group" "mytarget-group" {
 resource "aws_lb_listener_rule" "lblistenerrule" {
     listener_arn = aws_lb_listener.example.arn
     priority = 100
+    # testing
     condition {
         field = "path-pattern"
         values = ["*"]
