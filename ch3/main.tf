@@ -47,3 +47,14 @@ resource "aws_dynamodb_table" "terraform_locks" {
         type = "S"
     }
 }
+
+# output variables for the bucket arn and dynamodb table name
+output "s3_bucket_arn" {
+    value = aws_s3_bucket.terraform_state.arn
+    description = "the arn of the s3 bucket used to store terraformn state file"
+}
+
+output "dynamodb_table_name" {
+    value = aws_dynamodb_table.terraform_locks.name
+    description = "dynamodb table name that is used to store terraform locks"
+}
