@@ -21,16 +21,16 @@ resource "aws_s3_bucket" "terraform_state" {
             }
         }
     }
+}
 
-    # dynamoDB table for lock management
-    resource "aws_dynamodb_table" "terraform_locks" {
-        name = "terraform-up-and-running-locks"
-        billing_mode = "PAY_PER_REQUEST"
-        hash_key = "LockID"
+# dynamoDB table for lock management
+resource "aws_dynamodb_table" "terraform_locks" {
+    name = "terraform-up-and-running-locks"
+    billing_mode = "PAY_PER_REQUEST"
+    hash_key = "LockID"
 
-        attribute {
-            name = "LockID"
-            type = "S"
-        }
+    attribute {
+        name = "LockID"
+        type = "S"
     }
 }
