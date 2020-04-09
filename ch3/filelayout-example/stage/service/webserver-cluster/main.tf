@@ -9,6 +9,21 @@ terraform {
     }
 }
 
+provider "aws" {
+  region = "us-east-2"
+}
+
+resource "aws_security_group" "instance" {
+    name = "terraform-example-instanance"
+    ingress {
+        from_port = var.http_port
+        to_port = var.http_port
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+  
+}
+
 resource "aws_launch_configuration" "example" {
     image_id = "ami-0c55b159cbfafe1f0"
     instance_type = "t2.micro"
