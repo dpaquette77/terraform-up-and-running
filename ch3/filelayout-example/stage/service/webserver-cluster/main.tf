@@ -1,3 +1,14 @@
+terraform {
+    backend "s3" {
+        bucket = "dpaquette-terraform-up-and-running-state"
+        key = "stage/services/webserver-cluster/terraform.tfstate"
+        region = "us-east-2"
+        
+        dynamodb_table = "terraform-up-and-running-locks"
+        encrypt = true
+    }
+}
+
 resource "aws_launch_configuration" "example" {
     image_id = "ami-0c55b159cbfafe1f0"
     instance_type = "t2.micro"
