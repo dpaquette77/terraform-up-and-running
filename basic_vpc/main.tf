@@ -83,6 +83,62 @@ resource "aws_subnet" "pri_sn_b" {
     }
 }
 
+# nacl associated with all public subnets
+resource "aws_network_acl" "public_nacl" {
+    vpc_id = aws_vpc.my_vpc.id
+
+    ingress {
+        protocol = "tcp"
+        rule_no = 200
+        action = "allow"
+        cidr_block = "0.0.0.0/0"
+        from_port = 8080
+        to_port = 8080
+    }
+    egress {
+        protocol = "-1"
+        rule_no = 200
+        action = "allow"
+        cidr_block = "0.0.0.0/0"
+        from_port = 0
+        to_port = 0
+    }
+
+    subnet_ids = [aws_subnet.pub_sn_a.id, aws_subnet.pub_sn_b.id]
+
+    tags = {
+        Name = "public_nacl"
+    }
+}
+
+# nacl associated with all private subnets
+resource "aws_network_acl" "private_nacl" {
+    vpc_id = aws_vpc.my_vpc.id
+
+    ingress {
+        protocol = "tcp"
+        rule_no = 200
+        action = "allow"
+        cidr_block = "10.0.0.0/16"
+        from_port = 8080
+        to_port = 8080
+    }
+    egress {
+        protocol = "-1"
+        rule_no = 200
+        action = "allow"
+        cidr_block = "10.0.0.0/16"
+        from_port = 0
+        to_port = 0
+    }
+
+    subnet_ids = [aws_subnet.pri_sn_a.id, aws_subnet.pri_sn_b.id]
+
+    tags = {
+        Name = "private_nacl"
+    }
+}
+
 # pub_sn_a to public_rt association
 resource "aws_route_table_association" "public_association_a" {
     subnet_id = aws_subnet.pub_sn_a.id
