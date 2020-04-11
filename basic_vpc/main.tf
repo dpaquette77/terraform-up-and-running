@@ -54,12 +54,31 @@ resource "aws_route_table" "public_rt" {
     }
 }
 
-# private route table
-resource "aws_route_table" "private_rt" {
+# private route table a
+resource "aws_route_table" "private_rt_a" {
     vpc_id = aws_vpc.my_vpc.id
 
+    route {
+        cidr_block = "0.0.0.0/0"
+        gateway_id = aws_nat_gateway.nat_gw_a.id
+    }
+
     tags = {
-        Name = "private_rt"
+        Name = "private_rt_a"
+    }
+}
+
+# private route table b
+resource "aws_route_table" "private_rt_b" {
+    vpc_id = aws_vpc.my_vpc.id
+
+    route {
+        cidr_block = "0.0.0.0/0"
+        gateway_id = aws_nat_gateway.nat_gw_b.id
+    }
+
+    tags = {
+        Name = "private_rt_b"
     }
 }
 
@@ -173,16 +192,16 @@ resource "aws_route_table_association" "public_association_b" {
     route_table_id = aws_route_table.public_rt.id
 }
 
-# pri_sn_a to private_rt association
+# pri_sn_a to private_rt_a association
 resource "aws_route_table_association" "private_association_a" {
     subnet_id = aws_subnet.pri_sn_a.id
-    route_table_id = aws_route_table.private_rt.id
+    route_table_id = aws_route_table.private_rt_a.id
 }
 
-# pri_sn_b to private_rt association
+# pri_sn_b to private_rt_b association
 resource "aws_route_table_association" "private_association_b" {
     subnet_id = aws_subnet.pri_sn_b.id
-    route_table_id = aws_route_table.private_rt.id
+    route_table_id = aws_route_table.private_rt_b.id
 }
 
 
