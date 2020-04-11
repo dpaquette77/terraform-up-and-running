@@ -9,6 +9,11 @@ resource "aws_vpc" "my_vpc" {
     }
 }
 
+# data source to access the possible availability zones in this region
+data "aws_availability_zones" "available" {
+    state = "available"
+}
+
 # internet gateway
 resource "aws_internet_gateway" "my_igw" {
     vpc_id = aws_vpc.my_vpc.id
@@ -87,7 +92,7 @@ resource "aws_subnet" "pub_sn_a" {
     vpc_id = aws_vpc.my_vpc.id
     cidr_block = "10.0.0.0/24"
     map_public_ip_on_launch = true
-    availability_zone = "us-east-2a"
+    availability_zone = data.aws_availability_zones.available[0]
     tags = {
         Name = "pub_sn_a"
     }
@@ -98,7 +103,7 @@ resource "aws_subnet" "pub_sn_b" {
     vpc_id = aws_vpc.my_vpc.id
     cidr_block = "10.0.1.0/24"
     map_public_ip_on_launch = true
-    availability_zone = "us-east-2b"
+    availability_zone = data.aws_availability_zones.available[1]
     tags = {
         Name = "pub_sn_b"
     }
@@ -108,7 +113,7 @@ resource "aws_subnet" "pub_sn_b" {
 resource "aws_subnet" "pri_sn_a" {
     vpc_id = aws_vpc.my_vpc.id
     cidr_block = "10.0.2.0/24"
-    availability_zone = "us-east-2a"
+    availability_zone = data.aws_availability_zones.available[0]
     tags = {
         Name = "pri_sn_a"
     }
@@ -118,7 +123,7 @@ resource "aws_subnet" "pri_sn_a" {
 resource "aws_subnet" "pri_sn_b" {
     vpc_id = aws_vpc.my_vpc.id
     cidr_block = "10.0.3.0/24"
-    availability_zone = "us-east-2b"
+    availability_zone = data.aws_availability_zones.available[1]
     tags = {
         Name = "pri_sn_b"
     }
