@@ -18,6 +18,28 @@ resource "aws_internet_gateway" "my_igw" {
     }
 }
 
+# EIP for nat gw in pri_sn_a
+resource "aws_eip" "eip_a" { 
+    vpc = true
+}
+
+# EIP for nat gw in pri_sn_b
+resource "aws_eip" "eip_b" { 
+    vpc = true
+}
+
+# nat gateway for pri_sn_a
+resource "aws_nat_gateway" "nat_gw_a" {
+    allocation_id = aws_eip.eip_a.id
+    subnet_id = aws_subnet.pri_sn_a.id
+}
+
+# nat gateway for pri_sn_b
+resource "aws_nat_gateway" "nat_gw_b" {
+    allocation_id = aws_eip.eip_b.id
+    subnet_id = aws_subnet.pri_sn_b.id
+}
+
 # public route table 
 resource "aws_route_table" "public_rt" {
     vpc_id = aws_vpc.my_vpc.id
