@@ -1,3 +1,14 @@
+terraform {
+    backend "s3" {
+        bucket = "dpaquette-terraform-up-and-running-state"
+        key = "mycustom-vpm/terraform.tfstate"
+        region = "us-east-2"
+        
+        dynamodb_table = "terraform-up-and-running-locks"
+        encrypt = true
+    }
+}
+
 provider "aws" {
     region = "us-east-2"
 }
@@ -7,6 +18,10 @@ resource "aws_vpc" "my_vpc" {
     tags = {
         Name = "my_vpc"
     }
+}
+
+output "vpcid" {
+    value = aws_vpc.my_vpc.id
 }
 
 # data source to access the possible availability zones in this region
@@ -92,7 +107,7 @@ resource "aws_subnet" "pub_sn_a" {
     vpc_id = aws_vpc.my_vpc.id
     cidr_block = "10.0.0.0/24"
     map_public_ip_on_launch = true
-    availability_zone = data.aws_availability_zones.available[0]
+    availability_zone = data.aws_availability_zones.available.names[0]
     tags = {
         Name = "pub_sn_a"
     }
@@ -103,7 +118,7 @@ resource "aws_subnet" "pub_sn_b" {
     vpc_id = aws_vpc.my_vpc.id
     cidr_block = "10.0.1.0/24"
     map_public_ip_on_launch = true
-    availability_zone = data.aws_availability_zones.available[1]
+    availability_zone = data.aws_availability_zones.available.names[1]
     tags = {
         Name = "pub_sn_b"
     }
@@ -113,7 +128,7 @@ resource "aws_subnet" "pub_sn_b" {
 resource "aws_subnet" "pri_sn_a" {
     vpc_id = aws_vpc.my_vpc.id
     cidr_block = "10.0.2.0/24"
-    availability_zone = data.aws_availability_zones.available[0]
+    availability_zone = data.aws_availability_zones.available.names[0]
     tags = {
         Name = "pri_sn_a"
     }
@@ -123,7 +138,7 @@ resource "aws_subnet" "pri_sn_a" {
 resource "aws_subnet" "pri_sn_b" {
     vpc_id = aws_vpc.my_vpc.id
     cidr_block = "10.0.3.0/24"
-    availability_zone = data.aws_availability_zones.available[1]
+    availability_zone = data.aws_availability_zones.available.names[1]
     tags = {
         Name = "pri_sn_b"
     }
@@ -208,5 +223,8 @@ resource "aws_route_table_association" "private_association_b" {
     subnet_id = aws_subnet.pri_sn_b.id
     route_table_id = aws_route_table.private_rt_b.id
 }
+
+
+
 
 
