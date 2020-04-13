@@ -13,6 +13,16 @@ provider "aws" {
   region = "us-east-2"
 }
 
+data "terraform_remote_state" "db" {
+    backend = "s3"
+
+    config = {
+        bucket = "dpaquette-terraform-up-and-running-state"
+        key = "stage/services/data-stores/mysql/terraform.tfstate"
+        region = "us-east-2"
+    }
+}
+
 resource "aws_security_group" "instance" {
     name = "terraform-example-instanance"
     ingress {
@@ -24,15 +34,20 @@ resource "aws_security_group" "instance" {
   
 }
 
+data "template_file" "user_data" {
+    template = file("user-data.sh")
+    vars = {
+        db_address = data.terraform_remote_state.db.outputs.address
+        db_port = data.terraform_remote_state.db.outputs.port
+        server_port = var.http_port
+    }
+}
+
 resource "aws_launch_configuration" "example" {
     image_id = "ami-0c55b159cbfafe1f0"
     instance_type = "t2.micro"
     security_groups = [aws_security_group.instance.id]
-    user_data = <<EOF
-#!/bin/bash
-echo "hello world" > index.html
-nohup busybox httpd -f -p ${var.http_port} &
-EOF
+    user_data = data.template_file.user_data.rendered
 
     lifecycle {
         create_before_destroy = true
@@ -137,3 +152,5 @@ resource "aws_lb_listener_rule" "lblistenerrule" {
     }
   
 }
+
+
