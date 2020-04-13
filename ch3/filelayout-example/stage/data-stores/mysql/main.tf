@@ -19,6 +19,7 @@ resource "aws_db_instance" "example" {
     name = "example_database"
     username = "admin"
     password = data.aws_ssm_parameter.db_password.value
+    skip_final_snapshot = true
 }
 
 data "aws_ssm_parameter" "db_password" {
