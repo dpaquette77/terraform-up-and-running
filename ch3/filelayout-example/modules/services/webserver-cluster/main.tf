@@ -1,13 +1,4 @@
-terraform {
-    backend "s3" {
-        bucket = "dpaquette-terraform-up-and-running-state"
-        key = "stage/services/webserver-cluster/terraform.tfstate"
-        region = "us-east-2"
-        
-        dynamodb_table = "terraform-up-and-running-locks"
-        encrypt = true
-    }
-}
+
 
 provider "aws" {
   region = "us-east-2"
@@ -15,6 +6,7 @@ provider "aws" {
 
 locals {
     http_port = 80
+    backend_http_port = 8080
     any_port = 0
     any_protocol = "-1"
     tcp_protocol = "tcp"
@@ -34,20 +26,20 @@ data "terraform_remote_state" "db" {
 resource "aws_security_group" "instance" {
     name = "${var.cluster_name}-instance"
     ingress {
-        from_port = var.http_port
-        to_port = var.http_port
-        protocol = local.http_port
+        from_port = local.backend_http_port
+        to_port = local.backend_http_port
+        protocol = local.tcp_protocol
         cidr_blocks = local.all_ips
     }
   
 }
 
 data "template_file" "user_data" {
-    template = file("user-data.sh")
+    template = file("${path.module}/user-data.sh")
     vars = {
         db_address = data.terraform_remote_state.db.outputs.address
         db_port = data.terraform_remote_state.db.outputs.port
-        server_port = var.http_port
+        server_port = local.backend_http_port
     }
 }
 
@@ -130,7 +122,7 @@ resource "aws_security_group" "alb_sg" {
 
 resource "aws_lb_target_group" "mytarget-group" {
     name = "${var.cluster_name}-target-group"
-    port = var.http_port
+    port = local.backend_http_port
     protocol = "HTTP"
     vpc_id = data.aws_vpc.default.id
     
